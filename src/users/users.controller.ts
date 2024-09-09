@@ -3,10 +3,9 @@ import {
   Get,
   Post,
   Body,
-  Patch,
   Param,
   Delete,
-  Request,
+  Put,
 } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { CreateUserDto } from './dto/create-user.dto';
@@ -32,7 +31,7 @@ export class UsersController {
   }
 
   // Update a user (Authenticated)
-  @Patch(':id')
+  @Put(':id')
   update(
     @Param('id') id: number,
     @Body() updateUserDto: { userName: string; userNameDescription: string },
@@ -46,8 +45,8 @@ export class UsersController {
 
   // Delete a user (Authenticated)
   @Delete(':id')
-  deleteUser(@Param('id') id: string) {
-    return this.usersService.deleteUser(+id);
+  deleteUser(@Param('id') id: number) {
+    return this.usersService.deleteUser(id);
   }
 
   //get favorites for a user
@@ -62,12 +61,9 @@ export class UsersController {
 
   // Get favorites for a user (Authenticated)
   @Get(':id/favorites')
-  async findFavorites(@Param('id') userId: number, @Request() req) {
+  async findFavorites(@Param('id') userId: number) {
     // Проверяем, что пользователь запрашивает свой собственный список избранных
-    if (req.user.userId !== +userId) {
-      throw new Error('You can only access your own favorites');
-    }
-    return this.usersService.findFavorites(userId);
+    return this.usersService.getFavorites(userId);
   }
 
   // Delete a favorite user (Authenticated)

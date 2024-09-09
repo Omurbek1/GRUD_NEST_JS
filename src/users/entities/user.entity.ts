@@ -12,6 +12,12 @@ export class User {
   @Column({ nullable: true })
   userNameDescription: string;
 
-  @OneToMany(() => Favorite, (favorite) => favorite.user)
+  @OneToMany(() => Favorite, (favorite) => favorite.user, {
+    cascade: true,
+    onDelete: 'CASCADE',
+  })
   favorites: Favorite[];
+
+  @Column({ default: false })
+  isFavorite: boolean;
 }
