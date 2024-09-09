@@ -1,14 +1,16 @@
 import {
   BadRequestException,
+  ConflictException,
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
-import { CreateUserDto } from './dto/create-user.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from './entities/user.entity';
 import { Repository } from 'typeorm';
 import { Favorite } from './entities/favorite.entity';
-
+import { RegisterUserDto } from './dto/register-user.dto';
+import * as bcrypt from 'bcryptjs';
+import { CreateUserDto } from './dto/create-user.dto';
 @Injectable()
 export class UsersService {
   constructor(
@@ -18,6 +20,30 @@ export class UsersService {
     private readonly favoriteRepository: Repository<Favorite>,
   ) {}
 
+  async register(registerUserDto: RegisterUserDto): Promise<User> {
+    const { username, password, role } = registerUserDto;
+
+    const existingUser = await this.userRepository.findOne({
+      where: { userName: username },
+    });
+    if (existingUser) {
+      throw new ConflictException('Пользователь с таким именем уже существует');
+    }
+
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    const user = this.userRepository.create({
+      userName: username,
+      password: hashedPassword,
+      role: role || 'user', // По умолчанию роль будет 'user'
+    });
+
+    return this.userRepository.save(user);
+  }
+
+  async findByUsername(username: string): Promise<User> {
+    return await this.userRepository.findOne({ where: { userName: username } });
+  }
   // Get all users with isFavorite  status
   async findAllUsers(): Promise<User[]> {
     return await this.userRepository.find({

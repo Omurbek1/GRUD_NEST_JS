@@ -20,4 +20,10 @@ export class User {
 
   @Column({ default: false })
   isFavorite: boolean;
+
+  @Column({ default: 'user' })
+  role: string;
+
+  @Column()
+  password: string;
 }

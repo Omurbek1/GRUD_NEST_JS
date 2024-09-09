@@ -6,8 +6,14 @@ import {
   Param,
   Delete,
   Put,
+  UseGuards,
+  Request,
 } from '@nestjs/common';
 import { UsersService } from './users.service';
+import { Roles } from 'src/auth/roles.decorator';
+import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
+import { RolesGuard } from 'src/auth/roles.guard';
+
 import { CreateUserDto } from './dto/create-user.dto';
 
 @Controller('users')
@@ -15,11 +21,14 @@ export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
   @Post()
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('admin')
   createUser(@Body() createUserDto: CreateUserDto) {
     return this.usersService.createUser(createUserDto);
   }
 
   @Get()
+  @Roles('public')
   findAll() {
     return this.usersService.findAllUsers();
   }
@@ -73,5 +82,18 @@ export class UsersController {
     @Param('favoriteId') favoriteUserId: number,
   ) {
     return this.usersService.deleteFavorite(userId, favoriteUserId);
+  }
+
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('admin')
+  @Get('admin-data')
+  getAdminData(@Request() req) {
+    return { message: 'Только для админов', user: req.user };
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Get('profile')
+  getProfile(@Request() req) {
+    return req.user;
   }
 }
