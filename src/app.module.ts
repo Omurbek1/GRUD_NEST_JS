@@ -5,18 +5,19 @@ import { UsersModule } from './users/users.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { User } from './users/entities/user.entity';
 import { Favorite } from './users/entities/favorite.entity';
-
+import * as dotenv from 'dotenv';
+dotenv.config();
 @Module({
   imports: [
     TypeOrmModule.forRoot({
       type: 'postgres',
-      host: 'localhost',
-      port: 5432,
-      username: 'postgres',
-      password: '52280930',
-      database: 'user-name',
-      entities: [User, Favorite],
-      synchronize: true, // Set to false in production
+      host: process.env.DATABASE_HOST,
+      port: parseInt(process.env.DATABASE_PORT, 10),
+      username: process.env.DATABASE_USER,
+      password: process.env.DATABASE_PASSWORD,
+      database: process.env.DATABASE_NAME,
+      entities: [User, Favorite], // Your entities
+      synchronize: true, // Synchronize database schema automatically (use only in dev)
     }),
     UsersModule,
   ],
