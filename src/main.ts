@@ -8,6 +8,7 @@ async function bootstrap() {
     .setTitle('Users API')
     .setDescription('Users API description')
     .setVersion('1.0')
+    .addServer('http://localhost:3000')
     .addTag('users')
     .build();
 
